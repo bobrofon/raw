@@ -1,6 +1,10 @@
 #! /bin/env perl
-use strict;
+#use strict;
 use bigint;
+
+use Math::BigInt::Random;
+use Math::Primality;
+
 my $P = 35742549198872617291353508656626642567;
 my $Q = 359334085968622831041960188598043661065388726959079837;
 sub gcd {
@@ -77,10 +81,26 @@ sub Crc32 {
     }
 	return ($crc ^ 0xFFFFFFFF);
 }
+
+sub generatePrime {
+	for (my $i = Math::BigInt::Random::random_bigint(min => '4294967296', max => '18446744073709551616');
+		 ;
+		$i = Math::BigInt::Random::random_bigint(min => '4294967296', max => '18446744073709551616')) {
+		if (Math::Primality::is_prime($i)) {
+			return $i;
+		}
+	}
+}
+
 sub main {
-	my ($mode, $file) = @ARGV;
+	my ($mode) = @ARGV;
+	
 	if ($mode eq "g") {
-		my ($c, $d, $m) = generateKeys($P, $Q);
+		my ($mode, $p, $q) = @ARGV;
+		if (not defined $p) { $p = generatePrime(); }
+		if (not defined $q) { $q = generatePrime(); }
+
+		my ($c, $d, $m) = generateKeys($p, $q);
 		open(pub, ">", "pub.key");
 		open(sec, ">", "sec.key");
 		print pub $d."\n".$m."\n";
@@ -88,6 +108,7 @@ sub main {
 		return;
     }
 	if ($mode eq "s") {
+		my ($mode, $file) = @ARGV;
 		my ($c, $m);
 		open(sec, "<", "sec.key");
 		$c = <sec>; $c = Math::BigInt->new($c);
@@ -98,6 +119,7 @@ sub main {
 		return;
     }
 	if ($mode eq "t") {
+		my ($mode, $file) = @ARGV;
 		my ($d, $m);
 		open(pub, "<", "pub.key");
 		$d = <pub>; $d = Math::BigInt->new($d);
@@ -110,6 +132,6 @@ sub main {
 		if ($testSum == $chSum) { print "OK\n"; } else { print "FAILE\n"; }
 		return;
     }
-	print "Use: $ARGV[0] [options]\noptions:\ng - generate public and private key\ns input_file - sign file\nt inputfile - test sign\n";
+	print "Use: $0 [options]\noptions:\ng [prime 1] [prime 2] - generate public and private key\ns input_file - sign file\nt inputfile - test sign\n";
 }
 main();

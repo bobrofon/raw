@@ -22,6 +22,8 @@ sub main {
 	$mr = $mr % $n;
 
 	$id = Math::BigInt->new(int(rand(1000000)));
+	$id *= 0xFFFFFFFF;
+	$id += 0xDEADBEEF;
 
 	my $m = ($id * Rsa::pow($r, $d, $n)) % $n;
 
