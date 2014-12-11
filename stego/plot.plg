@@ -1,0 +1,5 @@
+set terminal png
+set output outname
+set xrange [0:1]
+set yrange [0:1]
+plot filename with linespoints
