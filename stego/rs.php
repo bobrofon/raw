@@ -3,25 +3,22 @@
 namespace Steganalysis;
 
 class RsAnalyzer implements iAnalyzer {
-	private $mask1 = ['0', '1', '1', '0'];
-	private $mask_1 = ['0', '_1', '_1', '0'];
+	private $mask1 = [0, 1, 1, 0];
+	private $mask_1 = [0, -1, -1, 0];
 
 	public function analyseRate(Image &$image) {
 		$stat = $this->calcStat($image);
 		$image->flipAll();
 		$fstat = $this->calcStat($image);
 
-		$k = count($this->mask1);
-		$n = $image->getCapacity();
+		$d0 = ($stat['R+'] - $stat['S+']);
+		$d1 = ($fstat['R+'] - $fstat['S+']);
+		$d_0 = ($stat['R-'] - $stat['S-']);
+		$d_1 = ($fstat['R-'] - $fstat['S-']);
 
-		$dm = ($stat['R+'] - $stat['S+']) * $k / $n;
-		$dm_ = ($fstat['R+'] - $fstat['S+']) * $k / $n;
-		$dm1 = ($stat['R-'] - $stat['S-']) * $k / $n;
-		$dm_1 = ($fstat['R-'] - $fstat['S-']) * $k / $n;
-
-		$a = 2 * ($dm + $dm_);
-		$b = $dm_1 - $dm1 - $dm - 3 * $dm_;
-		$c = $dm_ - $dm_1;
+		$a = 2 * ($d1 + $d0);
+		$b = $d_0 - $d_1 - $d1 - 3 * $d0;
+		$c = $d0 - $d_0;
 
 		$z = solveEq2($a, $b, $c);
 
@@ -59,10 +56,10 @@ class RsAnalyzer implements iAnalyzer {
 
 	private function mapMask(array $group, array &$mask) {
 		for ($i = 0; $i < count($mask); ++$i) {
-			if ($mask[$i] === '_1') {
+			if ($mask[$i] === -1) {
 				$this->flip_1($group[$i]);
 			}
-			elseif ($mask[$i] === '1') {
+			elseif ($mask[$i] === 1) {
 				$this->flip1($group[$i]);
 			}
 			else {

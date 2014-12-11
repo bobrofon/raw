@@ -1,5 +1,4 @@
 #! /usr/bin/php
-
 <?php
 
 include_once('image.php');
