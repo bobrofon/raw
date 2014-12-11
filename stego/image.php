@@ -33,6 +33,10 @@ class Image extends \ArrayObject {
 		return $this->image[$i];
 	}
 
+	public function count() {
+		return $this->h;
+	}
+
 	public function getCapacity() {
 		return $this->h * $this->w;
 	}
