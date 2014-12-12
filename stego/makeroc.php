@@ -9,7 +9,7 @@ $opts = getopt($shortOpts);
 $empty = [];
 $full = [];
 
-for ($i = 0; $i < 300; ++$i) {
+for ($i = 0; $i < 30; ++$i) {
 	if ($i & 1) {
 		$p = floatval(exec('./steganalysis.php -i ' . $opts['i'] . $i . '.png -t' . $opts['t']));
 		$empty[] = $p;
