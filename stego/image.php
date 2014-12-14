@@ -29,6 +29,12 @@ class Image extends \ArrayObject {
 		imagedestroy($image);
 	}
 
+	public function at($i) {
+		$y = intval($i / $this->w);
+		$x = $i % $this->w;
+		return $this->image[$y][$x];
+	}
+
 	public function offsetGet($i) {
 		return $this->image[$i];
 	}

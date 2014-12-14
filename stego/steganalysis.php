@@ -5,7 +5,7 @@ include_once('image.php');
 include_once('analyzer.php');
 include_once('rs.php');
 include_once('sp.php');
-include_once('vs.php');
+include_once('ws.php');
 
 class App {
 	private $imagePath = '';
@@ -17,7 +17,7 @@ class App {
 	}
 
 	private function getUsage() {
-		$message = 'Use: ' . $GLOBALS['argv'][0] . ' -i path [-p percent] [-t {rs|sp|vs}] [-h]' . PHP_EOL;
+		$message = 'Use: ' . $GLOBALS['argv'][0] . ' -i path [-p percent] [-t {rs|sp|ws}] [-h]' . PHP_EOL;
 		$message .= '-i - image path' . PHP_EOL;
 		$message .= '-p - embedding_rate. Integer value from 0 to 100 (%) [default=0]' . PHP_EOL;
 		$message .= '-t - analysis type [default=rs]' . PHP_EOL;
@@ -47,8 +47,8 @@ class App {
 			elseif ($opts['t'] === 'sp') {
 				$this->analyzer = new \Steganalysis\SpAnalyzer();
 			}
-			elseif ($opts['t'] === 'vs') {
-				$this->analyzer = new \Steganalysis\VsAnalyzer();
+			elseif ($opts['t'] === 'ws') {
+				$this->analyzer = new \Steganalysis\WsAnalyzer();
 			}
 			else {
 				die($this->getUsage());

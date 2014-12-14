@@ -9,7 +9,7 @@ $opts = getopt($shortOpts);
 $empty = [];
 $full = [];
 
-for ($i = 0; $i < 30; ++$i) {
+for ($i = 0; $i < 1000; ++$i) {
 	if ($i & 1) {
 		$p = floatval(exec('./steganalysis.php -i ' . $opts['i'] . $i . '.png -t' . $opts['t']));
 		$empty[] = $p;
@@ -22,9 +22,11 @@ for ($i = 0; $i < 30; ++$i) {
 	}
 }
 
-file_put_contents('/tmp/ololo', '');
+$tmpfile = '/tmp/' . $opts['t'] . '.tmp';
 
-for ($k = 0; $k <= 1; $k += 0.001) {
+file_put_contents($tmpfile, '');
+
+for ($k = 0; $k <= 1; $k += 0.000001) {
 	$tpr = 0;
 	$fpr = 0;
 	foreach ($empty as $p) if ($p >= $k) ++$fpr;
@@ -33,7 +35,7 @@ for ($k = 0; $k <= 1; $k += 0.001) {
 	$tpr /= count($full);
 	$fpr /= count($empty);
 
-	file_put_contents('/tmp/ololo', $fpr . ' ' . $tpr . PHP_EOL, FILE_APPEND);
+	file_put_contents($tmpfile, $fpr . ' ' . $tpr . PHP_EOL, FILE_APPEND);
 }
 
-exec('gnuplot -e "filename=\'/tmp/ololo\'; outname=\'' . $opts['t'] . '.png\'" plot.plg');
+exec('gnuplot -e "filename=\'' . $tmpfile . '\'; outname=\'' . $opts['t'] . '.png\'" plot.plg');
