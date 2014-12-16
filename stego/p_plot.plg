@@ -1,0 +1,7 @@
+set terminal png
+set output outname
+set xrange [0:100]
+set yrange [0:100]
+set xlabel "real %"
+set ylabel "detected %"
+plot filename with lines
