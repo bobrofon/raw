@@ -5,8 +5,65 @@
 	class WsAnalyzer implements iAnalyzer {
 		private $image;
 		private $filter;
+		private $w;
 
-		public function calcFilter($sy = null, $sx = null, $fy = null, $fx = null) {
+		private function calcW() {
+			$s = [];
+
+			for ($y = 2; $y < $this->image->count() - 2; ++$y) {
+				for ($x = 2; $x < $this->image[$y]->count() - 2; ++$x) {
+					$sx = (
+						$this->image[$y][$x - 1] +
+						$this->image[$y][$x + 1] +
+						$this->image[$y][$x - 2] +
+						$this->image[$y][$x + 2] +
+						$this->image[$y - 1][$x] +
+						$this->image[$y - 1][$x - 1] +
+						$this->image[$y - 1][$x + 1] +
+						$this->image[$y + 1][$x] +
+						$this->image[$y + 1][$x - 1] +
+						$this->image[$y + 1][$x + 1] +
+						$this->image[$y - 2][$x - 2] +
+						$this->image[$y - 2][$x] +
+						$this->image[$y - 2][$x + 2] +
+						$this->image[$y + 2][$x - 2] +
+						$this->image[$y + 2][$x] +
+						$this->image[$y + 2][$x + 2]
+					) / 16;
+
+					$t =
+						($this->image[$y][$x - 1] - $sx) * ($this->image[$y][$x - 1] - $sx) +
+						($this->image[$y][$x + 1] - $sx) * ($this->image[$y][$x + 1] - $sx) +
+						($this->image[$y][$x - 2] - $sx) * ($this->image[$y][$x - 2] - $sx) +
+						($this->image[$y][$x + 2] - $sx) * ($this->image[$y][$x + 2] - $sx) +
+						($this->image[$y - 1][$x] - $sx) * ($this->image[$y - 1][$x] - $sx) +
+						($this->image[$y - 1][$x - 1] - $sx) * ($this->image[$y - 1][$x - 1] - $sx) +
+						($this->image[$y - 1][$x + 1] - $sx) * ($this->image[$y - 1][$x + 1] - $sx) +
+						($this->image[$y + 1][$x] - $sx) * ($this->image[$y + 1][$x] - $sx) +
+						($this->image[$y + 1][$x - 1] - $sx) * ($this->image[$y + 1][$x - 1] - $sx) +
+						($this->image[$y + 1][$x + 1] - $sx) * ($this->image[$y + 1][$x + 1] - $sx) +
+						($this->image[$y - 2][$x - 2] - $sx) * ($this->image[$y - 2][$x - 2] - $sx) +
+						($this->image[$y - 2][$x] - $sx) * ($this->image[$y - 2][$x] - $sx) +
+						($this->image[$y - 2][$x + 2] - $sx) * ($this->image[$y - 2][$x + 2] - $sx) +
+						($this->image[$y + 2][$x - 2] - $sx) * ($this->image[$y + 2][$x - 2] - $sx) +
+						($this->image[$y + 2][$x] - $sx) * ($this->image[$y + 2][$x] - $sx) +
+						($this->image[$y + 2][$x + 2] - $sx) * ($this->image[$y + 2][$x + 2] - $sx);
+					$t = $t / 16;
+					$s[] = $t;
+					unset($sx);
+					unset($t);
+				}
+			}
+			foreach ($s as $w) {
+				$this->w[] = 1 / (1 + $w);
+			}
+			$t = array_sum($this->w);
+			foreach($this->w as &$w) {
+				$w /= $t;
+			}
+		}
+
+		private function calcFilter($sy = null, $sx = null, $fy = null, $fx = null) {
 			if (is_null($sy)) $sy = 2;
 			if (is_null($sx)) $sx = 2;
 			if (is_null($fy)) $fy = $this->image->count() - 3;
@@ -58,14 +115,14 @@
 			$this->image = $image;
 
 			$this->calcFilter();
+			$this->calcW();
 
 			$p = 0;
 
 			for ($y = 2; $y < $image->count() - 2; ++$y) {
 				for ($x = 2; $x < $image[$y]->count() - 2; ++$x) {
 					$i = ($y - 2) * ($image[$y]->count() - 4) + $x - 2;
-//					$this->calcFilter($y, $x, $y, $x);
-					$p += $this->w($i) * ($image[$y][$x] - ($image[$y][$x] ^ 1)) * ($image[$y][$x] - $this->pred($y, $x));
+					$p += $this->w[$i] * ($image[$y][$x] - ($image[$y][$x] ^ 1)) * ($image[$y][$x] - $this->pred($y, $x));
 				}
 			}
 			$p *= 2;
